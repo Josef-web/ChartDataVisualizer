@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Data Visualizer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Chart Data Visualizer</h1>
+    <form id="chartForm">
+        <div class="mb-3">
+            <label for="chartType" class="form-label">Chart Type</label>
+            <select id="chartType" class="form-select">
+                <option value="line">Line Chart</option>
+                <option value="bar">Bar Chart</option>
+                <option value="radar">Radar Chart</option>
+            </select>
+        </div>
+        <button type="button" id="generateChart" class="btn btn-primary">Generate Chart</button>
+    </form>
+    <canvas id="chartCanvas" class="mt-5"></canvas>
+</div>
+
+<script>
+    let chart; // Grafik değişkenini dışarı aldık
+
+    $(document).ready(function() {
+        $('#generateChart').click(function() {
+            const chartType = $('#chartType').val();
+
+            $.ajax({
+                url: 'https://localhost:44323/api/data/dataset', // Güncellenmiş URL
+                method: 'GET',
+                success: function(data) {
+                    const labels = data.map(item => item.label);
+                    const values = data.map(item => item.value);
+
+                    const ctx = document.getElementById('chartCanvas').getContext('2d');
+
+                    // Eski grafik varsa önce onu yok et
+                    if (chart) {
+                        chart.destroy();
+                    }
+
+                    chart = new Chart(ctx, {
+                        type: chartType,
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Dataset',
+                                data: values,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('API isteği başarısız:', error);
+                    console.log('Hata Detayları:', xhr);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
