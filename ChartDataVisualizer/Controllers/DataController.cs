@@ -1,4 +1,5 @@
 ﻿using ChartDataVisualizer.Data;
+using ChartDataVisualizer.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChartDataVisualizer.Controllers;
@@ -7,17 +8,17 @@ namespace ChartDataVisualizer.Controllers;
 [Route("api/[controller]")]
 public class DataController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly DataService _dataService;
 
-    public DataController(AppDbContext context)
+    public DataController(DataService dataService)
     {
-        _context = context;
+        _dataService = dataService;
     }
 
     [HttpGet("dataset")]
     public IActionResult GetData()
     {
-        var data = _context.DataPoints.ToList();
+        var data = _dataService.GetAllData();
         return Ok(data);
     }
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chart Data Visualizer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -18,30 +19,42 @@
                 <option value="line">Line Chart</option>
                 <option value="bar">Bar Chart</option>
                 <option value="radar">Radar Chart</option>
+                <option value="doughnut">Doughnut Chart</option>
+                <option value="polarArea">Polar Area Chart</option>
+                <option value="pie">Pie Chart</option>
             </select>
         </div>
-        <button type="button" id="generateChart" class="btn btn-primary">Generate Chart</button>
+        <button type="button" id="generateChart" class="btn btn-primary">
+            <i class="bi bi-bar-chart"></i> Generate Chart
+        </button>
     </form>
     <canvas id="chartCanvas" class="mt-5"></canvas>
 </div>
 
 <script>
-    let chart; // Grafik değişkenini dışarı aldık
+    let chart; 
 
     $(document).ready(function() {
         $('#generateChart').click(function() {
             const chartType = $('#chartType').val();
 
+            const apiUrl = `http://localhost:5209/api/data/dataset`;
+
+            console.log('API URL:', apiUrl); // Kontrol için URL'yi logluyoruz
+
             $.ajax({
-                url: 'https://localhost:44323/api/data/dataset', // Güncellenmiş URL
+                url: apiUrl,
                 method: 'GET',
                 success: function(data) {
                     const labels = data.map(item => item.label);
                     const values = data.map(item => item.value);
 
+                    // Her bir veri için rastgele renkler oluşturuyoruz
+                    const backgroundColors = values.map(() => getRandomColor());
+                    const borderColors = values.map(() => getRandomColor());
+
                     const ctx = document.getElementById('chartCanvas').getContext('2d');
 
-                    // Eski grafik varsa önce onu yok et
                     if (chart) {
                         chart.destroy();
                     }
@@ -53,8 +66,8 @@
                             datasets: [{
                                 label: 'Dataset',
                                 data: values,
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
                                 borderWidth: 1
                             }]
                         }
@@ -67,6 +80,15 @@
             });
         });
     });
+
+    // 🔥 Rastgele bir renk üretici fonksiyon
+    function getRandomColor() {
+        const r = Math.floor(Math.random() * 256); // 0-255
+        const g = Math.floor(Math.random() * 256); // 0-255
+        const b = Math.floor(Math.random() * 256); // 0-255
+        return `rgba(${r}, ${g}, ${b}, 0.6)`; // 0.6 saydamlık
+    }
 </script>
+
 </body>
 </html>
